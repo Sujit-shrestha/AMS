@@ -7,9 +7,9 @@ use mysqli;
 class DBConnect
 {
 
-  private $hostname = "localhost:8080";
-  private $username = "sanchay";
-  private $password = "sanchay";
+  private $hostname ;
+  private $username ;
+  private $password ;
   private $database = "ams";
 
   public $conn;
@@ -17,6 +17,9 @@ class DBConnect
   //begins connection on object instantiation
   public function __construct()
   {
+    $this->hostname = getenv('MYSQL_HOST');
+    $this->username = getenv('MYSQL_USER');
+    $this->password = getenv('MYSQL_PASSWORD');
     $this->connectToDatabase();
   }
 
@@ -27,24 +30,24 @@ class DBConnect
 
       if ($this->conn->connect_error) {
         throw new Exception($this->conn->connect_error);
-      } 
-    
+      }
     } catch (Exception $e) {
       echo "\n" . $e->getMessage() . "\n";
     }
 
   }
 
-  public function disconnectFromDatabase(){
-    try{
-      if($this->conn){
+  public function disconnectFromDatabase()
+  {
+    try {
+      if ($this->conn) {
         $this->conn->close();
-      }else{
+      } else {
         throw new Exception("Unable to disconnect from database.");
       }
-      
-    }catch (Exception $e) {
-      echo  $e->getMessage();
+
+    } catch (Exception $e) {
+      echo $e->getMessage();
     }
   }
 }
