@@ -46,10 +46,9 @@ class User
    */
 
 
-   //function not checked..
-   public function getAll()
-   {
-    try{
+  public function getAll()
+  {
+    try {
       $sql = "SELECT * FROM User";
       $result = $this->DBconn->conn->query($sql);
 
@@ -62,13 +61,13 @@ class User
 
       if (empty($data)) {
         throw new \Exception("Unable to fetch data form DB");
-      } else {
-        return $data;
       }
-    }catch(\Exception $e){
+      return $data;
+
+    } catch (\Exception $e) {
       error_log($e->getMessage());
       return false;
-   }
+    }
   }
   /**
    * gets users data using either id or username 
@@ -78,7 +77,7 @@ class User
   public function get(?int $id, ?string $username): array
   {
     try {
-      if(!isset($id) && !isset($username)) {
+      if (!isset($id) && !isset($username)) {
         throw new \Exception("Username and id field cannot be empty");
       }
 
@@ -120,7 +119,7 @@ class User
       error_log($e->getMessage());
       return array(
         "status" => "false",
-        "message" =>"$error"
+        "message" => "$error"
       );
     }
   }
@@ -207,7 +206,7 @@ class User
       WHERE id = '$id'
       ";
       $result = $this->DBconn->conn->query($sql);
-      if(!$result){
+      if (!$result) {
         throw new \Exception("Unable to delete user from database!!");
       }
       return [
