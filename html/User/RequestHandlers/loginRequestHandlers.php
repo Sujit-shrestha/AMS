@@ -12,8 +12,11 @@ class LoginRequestHandlers
 {
   public static function login()
   {
+
     $userObj = new User(new DBConnect());
+
     $authenticationObj = new JWTTokenHandlerAndAuthentication($userObj);
+
     //validation
     $keys = [
       "username" => ['required'],
@@ -44,6 +47,14 @@ class LoginRequestHandlers
 
     }
     $userData = $userObj->get(NULL, $_POST["username"]);
+    
+    if($userData["user_type"] == "employee"){
+      return [
+        "status" => "false",
+        "message" => "Employees cannot use AMS system yet. Ask auhtorizaiton from admin.",
+        "statusCode" => 401
+      ];
+    }
     //defining payload
     $payload = array(
       "user_type" => $userData["user_type"],
