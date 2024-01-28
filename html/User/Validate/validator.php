@@ -132,13 +132,13 @@ $keys = [
     if (count($validateData) > 0) {
       return [
         "validate" => false,
-        "statusCode" => 422,
+        // "statusCode" => 422,
         "message" => $validateData
       ];
     }
     return [
       "validate" => true,
-      "statusCode" => 200,
+      // "statusCode" => 200,
       "message" => $validateData
     ];
   }
