@@ -23,29 +23,30 @@ $keys = [
     $validateData = [];
 
     foreach ($keys as $key => $value) {
+
+      if (in_array('required', $value)) {
+        if (!isset($data[$key])) {
+
+          $validateData[$key][] = [
+            $key . " is required field!!"
+          ];
+          continue;
+        } else {
+
+        }
+      }
       //check empty 
       if (in_array('empty', $value)) {
-       
+
         if (isset($data[$key]) && !empty($data[$key])) {
 
         } else {
           $validateData[$key] = [
             $key . " cannot be empty!"
           ];
+          continue;
         }
       }
-
-      if (in_array('required', $value)) {
-        if (!isset($data[$key])) {
-          
-          $validateData[$key] = [
-            $key . " is required field!!"
-          ];
-        } else {
-          
-        }
-      }
-
 
       //check max length
       if (in_array("maxLength", $value)) {
@@ -62,6 +63,7 @@ $keys = [
           $validateData[$key] = [
             $key . " exceeded max length!"
           ];
+          continue;
 
       }
       if (in_array("minLength", $value)) {
@@ -80,6 +82,7 @@ $keys = [
           $validateData[$key] = [
             $key . " must be of minimum length $minAllowedLength[$key]!"
           ];
+          continue;
       }
 
       //check format of the data --Alphnumeric format
@@ -92,6 +95,7 @@ $keys = [
 
 
         isValidUsername($data[$key]) ? [] : $validateData[$key] = [$key . " format is not valid!"];
+        continue;
       }
       if (in_array("passwordFormat", $value)) {
         function isValidPassword($password)
@@ -111,6 +115,7 @@ $keys = [
         }
         $result = isValidPassword($data[$key]);
         ($result == true) ? [] : $validateData[$key] = [$key . "needs $result"];
+        continue;
       }
 
       if (in_array("email", $value)) {
@@ -120,6 +125,7 @@ $keys = [
           return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
         }
         isValidEmail($data[$key]) ? [] : $validateData[$key] = [$key . " is not valid."];
+        continue;
 
       }
     }
@@ -137,4 +143,3 @@ $keys = [
     ];
   }
 }
-?>
