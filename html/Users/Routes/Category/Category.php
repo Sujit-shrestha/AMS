@@ -21,18 +21,7 @@ class Category
         break;
 
       case 'PUT':
-        if (isset($_GET["previousParent"])) {
-
-          self::updateParent();
-        } else if (isset($_GET["previousChild"])) {
-
-          self::updateChild();
-        } else {
-          Response::respondWithJson([
-            "status" => "false",
-            "message" => "Parameters are not provided!!"
-          ], 400);
-        }
+        self::update();
         break;
 
       case 'DELETE':
@@ -57,6 +46,10 @@ class Category
   }
   public static function get(){
     $response = CategoryRequestHandlers::get();
+    Response::respondWithJson($response, $response["statusCode"]);
+  }
+  public static function update(){
+    $response = CategoryRequestHandlers::update();
     Response::respondWithJson($response, $response["statusCode"]);
   }
   public static function updateParent()
