@@ -1,9 +1,6 @@
 <?php
 
 namespace Model;
-
-// include_once "../Configuration/database-connection.php";
-
 use Configg\DBConnect;
 
 class Category
@@ -49,49 +46,85 @@ class Category
    * @return  array
    * gets based on category_name or parent name
    */
-  public function get(?string $category_name, ?string $parent): array
+  // public function get(?string $category_name, ?string $parent): array
+  // {
+  //   try {
+  //     if (!isset($category_name) && !isset($parent)) {
+  //       throw new \Exception("Category name or parent name cannot be empty!!");
+  //     }
+  //     ///to get data based on category_name only
+  //     if (isset($category_name)) {
+  //       $sql = "SELECT * FROM category WHERE category_name = '$category_name'";
+
+  //       $result = $this->DBconn->conn->query($sql);
+
+  //       if (!$result->num_rows > 0) {
+  //         throw new \Exception("Unable to fetch the given id data");
+  //       } else {
+  //         return [
+  //           "status" => "true",
+  //           "message" => "Data extracted successfully!!",
+  //           "data" => $result->fetch_assoc()
+  //         ];
+  //       }
+  //     }
+
+  //     //extracts data based on parent name only
+  //     if (isset($parent)) {
+  //       $sql = "SELECT * FROM category WHERE parent = '$parent'";
+  //       $result = $this->DBconn->conn->query($sql);
+
+  //       if (!$result->num_rows > 0) {
+  //         throw new \Exception("Unable ot find the parent category!!");
+  //       } else {
+  //         $data = array();
+  //         while ($row = $result->fetch_assoc()) {
+  //           $data[] = $row;
+  //         }
+  //         return [
+  //           "status" => "true",
+  //           "message" => "Parent data extracted successfully!!",
+  //           "data" => $data
+  //         ];
+  //       }
+  //     }
+  //     throw new \Exception("unknown error in getting category");
+  //   } catch (\Exception $e) {
+  //     return [
+  //       "status" => "false",
+  //       "message" => $e->getMessage(),
+  //       "data" => []
+  //     ];
+  //   }
+  // }
+
+  public function get(string $category_name = NULL, string $parent = NULL): array
   {
     try {
-      if (!isset($category_name) && !isset($parent)) {
-        throw new \Exception("Category name or parent name cannot be empty!!");
-      }
-      ///to get data based on category_name only
-      if (isset($category_name)) {
-        $sql = "SELECT * FROM category WHERE category_name = '$category_name'";
+     $sql = "SELECT * FROM category";
 
+      ///to get data based on category_name only
+      if(isset($_GET["parent"])){
+          $sql .= " WHERE parent = '$_GET[parent]'";
+      }
+      else if (isset($_GET["category_name"])) {
+        $sql = $sql ." WHERE category_name = '$_GET[category_name]'";
+      }
         $result = $this->DBconn->conn->query($sql);
 
         if (!$result->num_rows > 0) {
           throw new \Exception("Unable to fetch the given id data");
         } else {
+          $data = array();
+      while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
+      }
           return [
             "status" => "true",
             "message" => "Data extracted successfully!!",
-            "data" => $result->fetch_assoc()
-          ];
-        }
-      }
-
-      //extracts data based on parent name only
-      if (isset($parent)) {
-        $sql = "SELECT * FROM category WHERE parent = '$parent'";
-        $result = $this->DBconn->conn->query($sql);
-
-        if (!$result->num_rows > 0) {
-          throw new \Exception("Unable ot find the parent category!!");
-        } else {
-          $data = array();
-          while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
-          }
-          return [
-            "status" => "true",
-            "message" => "Parent data extracted successfully!!",
             "data" => $data
           ];
         }
-      }
-      throw new \Exception("unknown error in getting category");
     } catch (\Exception $e) {
       return [
         "status" => "false",
