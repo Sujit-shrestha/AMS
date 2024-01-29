@@ -98,22 +98,25 @@ class Category
   //   }
   // }
 
-  public function get(string $category_name = NULL, string $parent = NULL): array
+  public function get(string $category_name = NULL, string $parent = NULL , $id = NULL): array
   {
     try {
      $sql = "SELECT * FROM category";
 
       ///to get data based on category_name only
-      if(isset($_GET["parent"])){
-          $sql .= " WHERE parent = '$_GET[parent]'";
+      if(isset($parent)){
+          $sql .= " WHERE parent = '$parent'";
       }
-      else if (isset($_GET["category_name"])) {
-        $sql = $sql ." WHERE category_name = '$_GET[category_name]'";
+      else if (isset($category_name)) {
+        $sql .= " WHERE category_name = '$category_name'";
+      }
+      else if (isset($id)){
+        $sql.= " WHERE id = '$id'";
       }
         $result = $this->DBconn->conn->query($sql);
 
         if (!$result->num_rows > 0) {
-          throw new \Exception("Unable to fetch the given id data");
+          throw new \Exception("Unable to fetch the parameter provided !!");
         } else {
           $data = array();
       while ($row = $result->fetch_assoc()) {
@@ -130,6 +133,40 @@ class Category
         "status" => "false",
         "message" => $e->getMessage(),
         "data" => []
+      ];
+    }
+  }
+  public function update($data){
+    try {
+      $sql = "UPDATE category ";
+
+      if(isset($data["previousParent"])){
+        $sql .= "
+         SET parent = '$data[newParent]'
+      WHERE parent = '$data[previousParent]'
+        ";
+      }
+      else if (isset($data["previouscategory_name"])){
+        $sql .= "
+        SET category_name = '$data[newcategory_name]'
+        WHERE category_name = '$data[previouscategory_name]'
+        ";
+      }
+      print_r($sql);
+      $result = $this->DBconn->conn->query($sql);
+
+      if (!$result) {
+        throw new \Exception("Unable to update in database!!");
+      }
+      return [
+        "status" => "true",
+        "message" => "Parent updated successfully",
+      ];
+
+    } catch (\Exception $e) {
+      return [
+        "status" => "false",
+        "message" => $e->getMessage()
       ];
     }
   }
