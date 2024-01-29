@@ -188,12 +188,20 @@ class UserRequestHandlers
       $jsonData = file_get_contents('php://input');
       //to validatte in the keys
       $decodedData = json_decode($jsonData, true);
+      $id = $_GET["id"];
+      if (!$id) {
+        throw new Exception("Id not provided !!");
+      }
+      $result = $userObj->get($id, NULL);
+      if ($result["status"] == "false") {
+        unset($result);
+        return throw new Exception("User not found to update!!");
+      }
       $keys = [
-        'username' => ['empty', 'maxlength', 'format'],
-        'password' => ['empty', 'maxlength', 'minLength'],
-        'email' => ['empty', 'email'],
-        'name' => ['empty'],
-        'user_type' => ['empty']
+        'username' => ['required', 'maxlength', 'format'],
+        'password' => ['required', 'maxlength', 'minLength'],
+        'email' => ['required', 'email'],
+        'name' => ['required', 'empty']
       ];
 
       $validationResult = Validator::validate($decodedData, $keys);
@@ -206,15 +214,7 @@ class UserRequestHandlers
         );
         return $response;
       }
-      $id = $_GET["id"];
-      if (!$id) {
-        throw new Exception("Id not provided !!");
-      }
-      $result = $userObj->get($id, NULL);
-      if ($result["status"] == "false") {
-        unset($result);
-        return throw new Exception("User not found to update!!");
-      }
+
       $updateStatus = $userObj->update($id, $jsonData);
 
       if ($updateStatus["result"] == true) {
@@ -223,7 +223,7 @@ class UserRequestHandlers
           "status" => true,
           "statusCode" => "201",
           "message" => "User Updated successfully",
-          // "updatedData" => json_decode($jsonData)
+          "updatedData" => json_decode($jsonData)
         ];
       } else {
         return [
@@ -232,7 +232,7 @@ class UserRequestHandlers
           // "data" => $updateStatus
         ];
       }
-      
+
     } catch (Exception $e) {
       return [
         "status" => false,
@@ -247,6 +247,7 @@ class UserRequestHandlers
   public static function deleteUser()
   {
     try {
+      $userObj = new User(new DBConnect());
       $response = Authorization::verifyToken();
       if (!$response["status"]) {
         return [
@@ -256,6 +257,7 @@ class UserRequestHandlers
           "data" => []
         ];
       }
+      echo "here";
       //checks if user is not admin
       if ($response["data"]["user_type"] !== "admin") {
         return [
@@ -265,7 +267,6 @@ class UserRequestHandlers
           "data" => $response["data"]
         ];
       }
-      $userObj = new User(new DBConnect());
       $id = $_GET["id"];
       if (!$id) {
         throw new Exception("Id not provided !!");
