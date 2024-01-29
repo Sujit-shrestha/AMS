@@ -24,5 +24,4 @@ if (in_array($path, $pathOptions)) {
   exit();
 }
 
-print_r( $_SERVER);
 
