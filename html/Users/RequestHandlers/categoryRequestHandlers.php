@@ -118,11 +118,7 @@ class CategoryRequestHandlers
       "data" => json_decode($jsonData, true)
     ];
   }
-
-  /**
-   * gets all category in bulk
-   */
-  public static function getAll()
+  public static function get()
   {
     //Authorizaiton
     $response = Authorization::verifyToken();
@@ -144,7 +140,7 @@ class CategoryRequestHandlers
       ];
     }
     $categoryObj = new Category(new DBConnect());
-    $response = $categoryObj->getAll();
+    $response = $categoryObj->get($_GET["category_name"], $_GET["parent"], $_GET["id"]);
 
     return [
       "statusCode" => 200,
@@ -153,47 +149,94 @@ class CategoryRequestHandlers
       "data" => $response["data"]
     ];
   }
-
-  /**
-   * Gets category by the name of parent 
-   */
-  public static function getByParent()
-  {
-    //Authorizaiton
-    $response = Authorization::verifyToken();
-    if (!$response["status"]) {
-      return [
-        "status" => $response["status"],
-        "statusCode" => 401,
-        "message" => $response["message"],
-        "data" => $response["data"]
-      ];
-    }
-    //checks if user is not admin
-    if ($response["data"]["user_type"] !== "admin") {
-      return [
-        "status" => false,
-        "statusCode" => 401,
-        "message" => "User unauthorised",
-        "data" => $response["data"]
-      ];
-    }
-    $categoryModelObj = new Category(new DBConnect());
-    $parent = $_GET["parent"];
-    $response = $categoryModelObj->get(NULL, $parent);
-
-    return [
-      "status" => $response["status"],
-      "statusCode" => 200,
-      "message" => $response["message"],
-      "data" => $response["data"]
-    ];
-  }
-
   /**
    *  takes preParent from params and newParent name from 
    *  body as json value
    */
+  public static function update(): array
+  {
+    try {
+      //Authorizaiton
+      $response = Authorization::verifyToken();
+      if (!$response["status"]) {
+        return [
+          "status" => $response["status"],
+          "statusCode" => 401,
+          "message" => $response["message"],
+          "data" => $response["data"]
+        ];
+      }
+      //checks if user is not admin
+      if ($response["data"]["user_type"] !== "admin") {
+        return [
+          "status" => false,
+          "statusCode" => 401,
+          "message" => "User unauthorised",
+          "data" => $response["data"]
+        ];
+      }
+      $categoryModelObj = new Category(new DBConnect());
+
+      $jsonData = file_get_contents("php://input");
+      $decodedData = json_decode($jsonData, true);
+      if (isset($decodedData["previousParent"])) {
+        $previous = $decodedData["previousParent"];
+        $new = $decodedData["newParent"];
+        if (empty($previous)) {
+          throw new Exception("Previous parent/category value not provided!!");
+        }
+        $result = $categoryModelObj->get(NULL, $previous);
+
+      } else if (isset($decodedData["previouscategory_name"])) {
+        $previous = $decodedData["previouscategory_name"];
+        $new = $decodedData["newcategory_name"];
+        if (empty($previous)) {
+          throw new Exception("Previous parent/category value not provided!!");
+        }
+        $result = $categoryModelObj->get($previous, NULL);
+      }
+
+      if ($result["status"] == "false") {
+        throw new Exception("Previous value not found in database!!");
+      }
+      //validation
+      $dataToValidate = [
+        "previous" => $previous,
+        "new" => $new,
+      ];
+      $keys = [
+        'new' => ['empty'],
+        'previous' => ['empty']
+      ];
+
+      $validationResult = Validator::validate($dataToValidate, $keys);
+      if (!$validationResult["validate"]) {
+        $response = array(
+          "status" => "false",
+          "statusCode" => "409",
+          "message" => $validationResult,
+          "data" => $dataToValidate
+        );
+        return $response;
+      }
+         $response = $categoryModelObj->update( $decodedData);
+
+      if (!$response["status"]) {
+        throw new Exception("Unalbe to update in database!!");
+      }
+      return [
+        "status" => $response["status"],
+        "statusCode" => 200,
+        "message" => $response["message"]
+      ];
+
+    } catch (Exception $e) {
+      return [
+        "status" => "false",
+        "message" => $e->getMessage()
+      ];
+    }
+  }
   public static function updateParent(): array
   {
     try {
