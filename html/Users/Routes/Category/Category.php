@@ -59,16 +59,6 @@ class Category
     $response = CategoryRequestHandlers::get();
     Response::respondWithJson($response, $response["statusCode"]);
   }
-  public static function getAll()
-  {
-    $response = CategoryRequestHandlers::getAll();
-    Response::respondWithJson($response, $response["statusCode"]);
-  }
-  public static function getByParent()
-  {
-    $response = CategoryRequestHandlers::getByParent();
-    Response::respondWithJson($response, $response["statusCode"]);
-  }
   public static function updateParent()
   {
     $response = CategoryRequestHandlers::updateParent();
