@@ -1,5 +1,5 @@
 <?php 
- require_once __DIR__ ."/User/Configuration/config.php";
+ require_once __DIR__ ."/Users/Configuration/config.php";
 
-  include __DIR__."/User/index.php";
+  include __DIR__."/Users/index.php";
 
