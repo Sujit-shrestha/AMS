@@ -3,7 +3,6 @@
 namespace Routes\Category;
 
 use Middleware\Response;
-
 use RequestHandlers\CategoryRequestHandlers;
 
 class Category
@@ -13,11 +12,8 @@ class Category
 
     switch ($_SERVER['REQUEST_METHOD']) {
       case 'GET':
-        if (isset($_GET['parent'])) {
-          self::getByParent();
-        } else {
-          self::getAll();
-        }
+       
+        self::get();
         break;
 
       case 'POST':
@@ -57,6 +53,10 @@ class Category
   public static function create()
   { 
     $response = CategoryRequestHandlers::createCategory();
+    Response::respondWithJson($response, $response["statusCode"]);
+  }
+  public static function get(){
+    $response = CategoryRequestHandlers::get();
     Response::respondWithJson($response, $response["statusCode"]);
   }
   public static function getAll()
